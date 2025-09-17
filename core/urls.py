@@ -7,7 +7,7 @@ urlpatterns = [
     # Generic Upload & Export
     path('', views.upload_view, name='upload'),
     path('export/', views.export_json_view, name='export_json'),
-    #path('export/pdf/', views.export_pdf_view, name='export_pdf'),
+    path('export/pdf/', views.cfo_export_pdf_view, name='export_pdf'),  # Add this line
 
     # Zomato Analyzer
     path('zomato/', views.zomato_upload_view, name='zomato_upload'),
