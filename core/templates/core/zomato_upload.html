@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Zomato Annual Report Insights – Upload</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'core/styles.css' %}">
+</head>
+<body class="bg-gray-50 min-h-screen">
+  <div class="max-w-3xl mx-auto py-12 px-4">
+    <header class="mb-8">
+      <h1 class="text-3xl font-bold text-gray-800">Zomato Annual Report Insights</h1>
+      <p class="text-gray-600">Upload the Zomato Annual Report PDF (2023-24) to generate executive insights.</p>
+    </header>
+
+    {% if error %}
+      <div class="mb-6 p-4 bg-red-50 text-red-700 rounded border border-red-200">{{ error }}</div>
+    {% endif %}
+
+    <form method="post" enctype="multipart/form-data" class="space-y-4" id="upload-form">
+      {% csrf_token %}
+      <div class="dropzone" id="dropzone">
+        <svg class="h-10 w-10 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6H16a4 4 0 010 8h-1" />
+        </svg>
+        <p class="mt-2 text-sm text-gray-600">Drag and drop the PDF here, or click to select</p>
+        {{ form.file }}
+      </div>
+      <button type="submit" class="btn-primary">Analyze PDF</button>
+    </form>
+
+    {% if request.session.zomato_result %}
+    <section class="mt-10">
+      <h2 class="text-xl font-semibold text-gray-800">Download Insights</h2>
+      <p class="text-gray-600 mt-1">Your analysis is ready. Export in your preferred format:</p>
+      <div class="mt-4 flex space-x-3">
+        <a href="{% url 'core:zomato_export_pdf' %}" 
+           class="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700">
+        📄 Download PDF
+      </a>
+      <a href="{% url 'core:zomato_export_json' %}" 
+         class="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300">
+        🔗 Download JSON
+      </a>
+    </div>
+  </section>
+{% endif %}
+
+    <section class="mt-10 text-gray-600 text-sm">
+      <h2 class="font-semibold text-gray-800">What we extract</h2>
+      <ul class="list-disc ml-6 mt-2">
+        <li>Segment GOV/Revenue and YoY growth (Food Delivery, Quick Commerce, Going-Out, B2B Supplies)</li>
+        <li>ESG highlights (e.g., Net Zero 2033, Plastic Neutral Deliveries)</li>
+        <li>Trends and recommendations based on detected signals</li>
+      </ul>
+    </section>
+  </div>
+
+  <script>
+    const dropzone = document.getElementById('dropzone');
+    const fileInput = dropzone.querySelector('input[type="file"]');
+    dropzone.addEventListener('click', () => fileInput.click());
+    ;['dragenter','dragover'].forEach(ev => dropzone.addEventListener(ev, e=>{e.preventDefault(); e.stopPropagation(); dropzone.classList.add('ring-2','ring-indigo-400');}));
+    ;['dragleave','drop'].forEach(ev => dropzone.addEventListener(ev, e=>{e.preventDefault(); e.stopPropagation(); dropzone.classList.remove('ring-2','ring-indigo-400');}));
+    dropzone.addEventListener('drop', e=>{ const dt=e.dataTransfer; if(dt && dt.files && dt.files.length>0){ fileInput.files = dt.files; } });
+  </script>
+</body>
+</html>

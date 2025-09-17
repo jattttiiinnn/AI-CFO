@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI CFO Assistant – Results</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'core/styles.css' %}">
+</head>
+<body class="bg-gray-50 min-h-screen">
+  <div class="max-w-5xl mx-auto py-12 px-4">
+    <header class="mb-8 flex items-center justify-between">
+      <div>
+        <h1 class="text-3xl font-bold text-gray-800">Analysis Results</h1>
+        <p class="text-gray-600">Source: {{ result.source_file }} • Generated at: {{ result.generated_at }}</p>
+      </div>
+      <div class="flex gap-3">
+        <a href="{% url 'core:upload' %}" class="btn-secondary">Analyze Another File</a>
+        <a href="{% url 'core:export_json' %}" class="btn-primary">Download JSON Report</a>
+        <a href="{% url 'core:export_pdf' %}" class="btn-primary">Download PDF Report</a>
+      </div>
+    </header>
+
+    <section>
+      <h2 class="section-title">Key Metrics</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {% for key, value in result.metrics.items %}
+          <div class="card">
+            <div class="text-gray-500 text-sm">{{ key }}</div>
+            <div class="text-lg font-semibold text-gray-800">
+              {% if value is None %}
+                —
+              {% else %}
+                {% if key == 'Profit Margin (%)' %}
+                  {{ value|floatformat:2 }}%
+                {% elif key == 'Runway (Months)' %}
+                  {{ value|floatformat:1 }} months
+                {% else %}
+                  {{ value|floatformat:2 }}
+                {% endif %}
+              {% endif %}
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </section>
+
+    <section class="mt-10">
+      <h2 class="section-title">Detected Risks</h2>
+      {% if result.risks %}
+        <div class="space-y-4">
+          {% for r in result.risks %}
+            <div class="card">
+              <div class="flex items-center justify-between">
+                <div>
+                  <div class="text-sm uppercase tracking-wide text-gray-500">{{ r.level }}</div>
+                  <div class="text-xl font-semibold text-gray-800">{{ r.title }}</div>
+                </div>
+              </div>
+              <p class="mt-2 text-gray-700">{{ r.explanation }}</p>
+              <p class="mt-1 text-gray-700"><span class="font-medium">Recommendation:</span> {{ r.recommendation }}</p>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="p-4 bg-green-50 text-green-800 rounded border border-green-200">No major risks detected based on the provided thresholds.</div>
+      {% endif %}
+    </section>
+  </div>
+</body>
+</html>

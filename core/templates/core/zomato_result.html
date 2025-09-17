@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Zomato Annual Report Insights – Results</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  {% load static %}
+  {% load num_filters %}
+  <link rel="stylesheet" href="{% static 'core/styles.css' %}">
+</head>
+<body class="bg-gray-50 min-h-screen">
+  <div class="max-w-6xl mx-auto py-12 px-4">
+    <header class="mb-8 flex items-center justify-between">
+      <div>
+        <h1 class="text-3xl font-bold text-gray-800">Zomato Insights</h1>
+        <p class="text-gray-600">Source: {{ data.source_file }} • Generated at: {{ data.generated_at }}</p>
+      </div>
+      <div class="flex gap-3">
+        <a href="{% url 'core:zomato_upload' %}" class="btn-secondary">Analyze Another PDF</a>
+        <a href="{% url 'core:zomato_export_json' %}" class="btn-primary">Download JSON Report</a>
+        <a href="{% url 'core:zomato_export_pdf' %}" class="btn-primary">Download PDF Report</a>
+      </div>
+    </header>
+
+    <section>
+      <h2 class="section-title">Key Metrics by Segment</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
+        {% for seg_key, s in data.keyMetrics.items %}
+          <div class="card">
+            <div class="text-xl font-semibold text-gray-800 mb-2">
+              {% if seg_key == 'foodDelivery' %}Food Delivery{% elif seg_key == 'quickCommerce' %}Quick Commerce{% elif seg_key == 'goingOut' %}Going-Out{% elif seg_key == 'b2bSupplies' %}B2B Supplies (Hyperpure){% else %}{{ seg_key }}{% endif %}
+            </div>
+            <div class="space-y-1 text-gray-800">
+              {% if s.GOV %}<div><span class="text-gray-500">GOV:</span> {{ s.GOV|in_crores }}</div>{% endif %}
+              {% if s.Revenue %}<div><span class="text-gray-500">Revenue:</span> {{ s.Revenue|in_crores }}</div>{% endif %}
+              {% if s.YoYGrowth %}<div><span class="text-gray-500">YoY Growth:</span> {{ s.YoYGrowth }}</div>{% endif %}
+              {% if s.Orders %}<div><span class="text-gray-500">Orders:</span> {{ s.Orders|in_crores }}</div>{% endif %}
+              {% if s.AOV %}<div><span class="text-gray-500">AOV:</span> {{ s.AOV|in_crores }}</div>{% endif %}
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </section>
+
+    <section class="mt-10">
+      <h2 class="section-title">Key Trends</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="card">
+          <div class="font-semibold text-green-700">Positive</div>
+          <ul class="list-disc ml-6 mt-2 text-green-800">
+            {% for t in data.trends.positive %}
+              <li>{{ t }}</li>
+            {% empty %}
+              <li>No positive trends detected.</li>
+            {% endfor %}
+          </ul>
+        </div>
+        <div class="card">
+          <div class="font-semibold text-red-700">Negative</div>
+          <ul class="list-disc ml-6 mt-2 text-red-800">
+            {% for t in data.trends.negative %}
+              <li>{{ t }}</li>
+            {% empty %}
+              <li>No negative trends detected.</li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="mt-10">
+      <h2 class="section-title">Recommendations</h2>
+      <div class="card">
+        <ul class="list-disc ml-6 text-gray-800">
+          {% for r in data.recommendations %}
+            <li>{{ r }}</li>
+          {% empty %}
+            <li>No recommendations generated.</li>
+          {% endfor %}
+        </ul>
+      </div>
+    </section>
+
+  </div>
+</body>
+</html>
